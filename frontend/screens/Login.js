@@ -19,6 +19,8 @@ import {
     StyledButton,
     ButtonText,
     colors,
+    MsgBox,
+    Line,
 } from "../components/Style";
 import { View } from "react-native";
 
@@ -63,6 +65,15 @@ const Login = () => {
                                     hidePassword={hidePassword}
                                     setHidePassword={setHidePassword}
                                 />
+                                <MsgBox>...</MsgBox>
+                                <StyledButton onPress={handleSubmit}>
+                                    <ButtonText>Login</ButtonText>
+                                </StyledButton>
+                                <Line />
+                                <StyledButton google={true} onPress={handleSubmit}>
+                                    <Fontisto name="google" size={25} color={colors.primary} />
+                                    <ButtonText>Sign Up</ButtonText>
+                                </StyledButton>
                             </StyledFormArea>
                     }
 
