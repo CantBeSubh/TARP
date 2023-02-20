@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Formik } from "formik";
 
@@ -23,6 +23,8 @@ import {
 import { View } from "react-native";
 
 const Login = () => {
+    const [hidePassword, setHidePassword] = useState(true);
+
     return (
         <StyledContainer>
             <StatusBar style="dark" />
@@ -48,6 +50,19 @@ const Login = () => {
                                     value={values.email}
                                     keyboardType="email-address"
                                 />
+                                <MyTextInput
+                                    label="Password"
+                                    icon="lock"
+                                    placeholder="* * * * * * * *"
+                                    placeholderTextColor={colors.darkLight}
+                                    onChangeText={handleChange('password')}
+                                    onBlur={handleBlur('password')}
+                                    value={values.password}
+                                    secureTextEntry={true}
+                                    isPassword={true}
+                                    hidePassword={hidePassword}
+                                    setHidePassword={setHidePassword}
+                                />
                             </StyledFormArea>
                     }
 
@@ -58,7 +73,7 @@ const Login = () => {
     );
 }
 
-const MyTextInput = ({ label, icon, ...props }) => {
+const MyTextInput = ({ label, icon, isPassword, hidePassword, setHidePassword, ...props }) => {
     return (
         <View>
             <LeftIcon>
@@ -66,6 +81,11 @@ const MyTextInput = ({ label, icon, ...props }) => {
             </LeftIcon>
             <StyledInputLabel>{label}</StyledInputLabel>
             <StyledTextInput {...props} />
+            {isPassword && (
+                <RightIcon onPress={() => setHidePassword(!hidePassword)} >
+                    <Ionicons name={hidePassword ? 'md-eye-off' : 'md-eye'} size={30} color={colors.darkLight} />
+                </RightIcon>
+            )}
         </View>
     )
 }
