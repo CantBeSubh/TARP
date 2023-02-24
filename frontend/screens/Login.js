@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth } from '../firebase'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -20,17 +20,8 @@ const Login = () => {
         return unsubscribe
     }, [])
 
-    const handleSignUp = () => {
-        createUserWithEmailAndPassword(auth, email, password)
-            .then(userCredentials => {
-                const user = userCredentials.user;
-                console.log('Registered with:', user.email);
-            })
-            .catch(error => alert(error.message))
-    }
-
     const handleLogin = () => {
-        signInWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, email.trim(), password)
             .then(userCredentials => {
                 const user = userCredentials.user;
                 console.log('Logged in with:', user.email);
@@ -67,7 +58,7 @@ const Login = () => {
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={handleSignUp}
+                    onPress={() => navigation.navigate("Register")}
                     style={[styles.button, styles.buttonOutline]}
                 >
                     <Text style={styles.buttonOutlineText}>Register</Text>
