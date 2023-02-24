@@ -54,8 +54,7 @@ const Login = () => {
             .then(userCredentials => {
                 const user = userCredentials.user;
                 console.log('Registered with:', user.email);
-                setDetails({ ...details, email: user.email })
-                return setDoc(doc(db, value, user.uid), details);
+                return setDoc(doc(db, value, user.uid), { ...details, email });
             })
             .then(() => { setDetails({}) })
             .catch(error => alert(error.message))
