@@ -61,7 +61,7 @@ const Home = () => {
         <View style={styles.container}>
             <Text>{studData && `${studData.firstName} ${studData.lastName}`}</Text>
             <Text>Email: {auth.currentUser?.email}</Text>
-            <Text>{studData.Attendance && `${new Date(studData.Attendance[0]["seconds"] * 1000).toString()}`}</Text>
+            <Text>{studData.Attendance && `${new Date(studData.Attendance[0]["seconds"] * 1000).toDateString()}`}</Text>
             <Text>{parData && `Parent: ${parData.firstName} ${parData.lastName}`}</Text>
             <TouchableOpacity
                 onPress={handleSignOut}
