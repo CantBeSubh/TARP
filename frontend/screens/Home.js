@@ -90,7 +90,7 @@ const Home = () => {
                             var x = item.getMonth() + 1 < 10 ? "0" : ""
                             x += item.getMonth() + 1
                             var s = item.getFullYear() + "-" + x + "-" + item.getDate()
-                            obj[s] = { selected: true, selectedColor: 'blue' }
+                            obj[s] = { selected: true, selectedColor: 'red' }
                             console.log(obj)
                             return obj
                         }, {})
