@@ -1,11 +1,13 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { auth, db } from '../firebase'
 import { signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { Calendar } from 'react-native-calendars';
-
+import * as Location from 'expo-location';
+import { Marker } from 'react-native-maps';
+import MapView from 'react-native-maps';
 // new Date(stud.data()["Attendance"][0]["seconds"] * 1000).toDateString()
 
 const Home = () => {
@@ -13,6 +15,8 @@ const Home = () => {
     const [parData, setParData] = useState({})
     const [proData, setProData] = useState({})
     const [attendance, setAttendance] = useState([])
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     const docSnap = () => {
         getDoc(doc(db, "Students", auth.currentUser.uid))
@@ -61,6 +65,15 @@ const Home = () => {
             .catch(error => alert(error.message))
     }
 
+    const getLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            setErrorMsg('Permission to access location was denied');
+            return;
+        }
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location);
+    };
     const navigation = useNavigation()
 
     const handleSignOut = () => {
@@ -74,6 +87,7 @@ const Home = () => {
 
     useEffect(() => {
         docSnap()
+        getLocation()
     }, [])
 
     useEffect(() => {
@@ -81,36 +95,54 @@ const Home = () => {
             setAttendance(studData.Attendance.map((item) => new Date(item["seconds"] * 1000)))
         }
     }, [studData])
+
+    let text = 'Waiting..';
+    if (errorMsg) {
+        text = errorMsg;
+    } else if (location) {
+        text = `Location: ${location.coords.latitude}, ${location.coords.longitude}`;
+    }
     return (
         <View style={styles.container}>
-            {attendance && attendance.length > 0 &&
-                <Calendar
-                    markedDates={
-                        attendance.reduce(function (obj, item) {
-                            var x = item.getMonth() + 1 < 10 ? "0" : ""
-                            x += item.getMonth() + 1
-                            var s = item.getFullYear() + "-" + x + "-" + item.getDate()
-                            obj[s] = { selected: true, selectedColor: 'red' }
-                            console.log(obj)
-                            return obj
-                        }, {})
+            <ScrollView style={{ flex: 1 }}>
+
+                {attendance && attendance.length > 0 &&
+                    <Calendar
+                        markedDates={
+                            attendance.reduce(function (obj, item) {
+                                var x = item.getMonth() + 1 < 10 ? "0" : ""
+                                x += item.getMonth() + 1
+                                var s = item.getFullYear() + "-" + x + "-" + item.getDate()
+                                obj[s] = { selected: true, selectedColor: 'red' }
+                                console.log(obj)
+                                return obj
+                            }, {})
+                        }
+                    />
+                }
+
+
+                <Text>{studData && `${studData.firstName} ${studData.lastName}`}</Text>
+                <Text>Email: {auth.currentUser?.email}</Text>
+                {attendance && attendance.map((item) => <Text>{item.toDateString()}</Text>)}
+                <Text>{parData && `Parent: ${parData.firstName} ${parData.lastName}`}</Text>
+                <Text>{proData && `Proctor: ${proData.firstName} ${proData.lastName}`}</Text>
+                <Text>{text}</Text>
+
+                <MapView style={styles.map} >
+                    {location && <Marker
+                        coordinate={location.coords}
+                    />
                     }
-                />
-            }
+                </MapView>
+                <TouchableOpacity
+                    onPress={handleSignOut}
+                    style={styles.button}
+                >
+                    <Text style={styles.buttonText}>Sign out</Text>
+                </TouchableOpacity>
+            </ScrollView>
 
-
-            <Text>{studData && `${studData.firstName} ${studData.lastName}`}</Text>
-            <Text>Email: {auth.currentUser?.email}</Text>
-            {attendance && attendance.map((item) => <Text>{item.toDateString()}</Text>)}
-            <Text>{parData && `Parent: ${parData.firstName} ${parData.lastName}`}</Text>
-            <Text>{proData && `Proctor: ${proData.firstName} ${proData.lastName}`}</Text>
-
-            <TouchableOpacity
-                onPress={handleSignOut}
-                style={styles.button}
-            >
-                <Text style={styles.buttonText}>Sign out</Text>
-            </TouchableOpacity>
         </View>
     )
 }
@@ -136,4 +168,8 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 16,
     },
+    map: {
+        width: '100%',
+        height: '100%',
+    }
 })
