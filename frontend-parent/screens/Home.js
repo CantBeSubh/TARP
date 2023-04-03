@@ -18,41 +18,36 @@ const Home = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
 
+    const [studLocation, setStudLocation] = useState({})
+    const getLoc = () => {
+        console.log("Fetching...")
 
-    const sendLoc = () => {
-        console.log("Sendiong...")
-        const newData = {
-            x: location.coords.latitude,
-            y: location.coords.longitude
-        }
-        console.log(newData)
-
-        fetch("http://172.20.10.4:3000/location", {
-            method: "POST",
-            body: newData
-        })
+        fetch("http://172.20.10.4:3000/location", { method: "GET" })
             .then(res => res.json())
+            .then(res => setStudLocation(res))
             .then(res => console.log(res))
             .catch(err => console.log(err))
+
     }
     const docSnap = () => {
-        getDoc(doc(db, "Students", auth.currentUser.uid))
-            .then((stud) => {
-                if (stud.exists()) {
-                    setStudData(stud.data())
-                    console.log("Student data:", stud.data());
-                    return stud
+        getDoc(doc(db, "Parents", auth.currentUser.uid))
+            .then((parent) => {
+                if (parent.exists()) {
+                    console.log("Parent data:", parent.data());
+                    setParData(parent.data())
                 } else {
                     // doc.data() will be undefined in this case
                     console.log("No such document!");
                 }
+                return parent
+
             })
             .then((parent) => {
-                getDoc(doc(db, "Parents", parent.data().Parents["_key"]["path"]["segments"][6]))
+                getDoc(doc(db, "Students", parent.data().Student["_key"]["path"]["segments"][6]))
                     .then((par) => {
                         if (par.exists()) {
-                            console.log("Parent data:", par.data());
-                            setParData(par.data())
+                            console.log("Student data:", par.data());
+                            setStudData(par.data())
                         } else {
                             // doc.data() will be undefined in this case
                             console.log("No such document!");
@@ -61,23 +56,6 @@ const Home = () => {
                     .catch((error) => {
                         console.log("Error getting document:", error);
                     });
-                return parent
-            })
-            .then((proctor) => {
-                getDoc(doc(db, "Proctor", proctor.data().Proctor["_key"]["path"]["segments"][6]))
-                    .then((pro) => {
-                        if (pro.exists()) {
-                            console.log("Proctor data:", pro.data());
-                            setProData(pro.data())
-                        } else {
-                            // doc.data() will be undefined in this case
-                            console.log("No such document!");
-                        }
-                    })
-                    .catch((error) => {
-                        console.log("Error getting document:", error);
-                    });
-                return proctor
             })
             .catch(error => alert(error.message))
     }
@@ -105,7 +83,7 @@ const Home = () => {
     useEffect(() => {
         docSnap()
         getLocation()
-        sendLoc()
+        getLoc()
     }, [])
 
     useEffect(() => {
@@ -137,12 +115,11 @@ const Home = () => {
             }
 
 
-            <Text>{studData && `${studData.firstName} ${studData.lastName}`}</Text>
+            <Text>{studData && `${parData.firstName} ${parData.lastName}`}</Text>
             <Text>Email: {auth.currentUser?.email}</Text>
-            {attendance && attendance.map((item) => <Text>{item.toDateString()}</Text>)}
-            <Text>{parData && `Parent: ${parData.firstName} ${parData.lastName}`}</Text>
-            <Text>{proData && `Proctor: ${proData.firstName} ${proData.lastName}`}</Text>
+            <Text>{studData && `Student: ${studData.firstName} ${studData.lastName}`}</Text>
             <Text>{text}</Text>
+            <Text>{studLocation && studLocation.result && `Student Location: ${studLocation.result.x},${studLocation.result.y}`}</Text>
             <View>
                 {/* <MapView style={styles.map} >
                     {location && <Marker
