@@ -129,7 +129,7 @@ const Home = () => {
                 {studLocation && studLocation.result &&
                     <Marker
                         pinColor='green'
-                        coordinate={{ latitude: studLocation.result.x, longitude: studLocation.result.y }}
+                        coordinate={{ "x": studLocation.result.x, "y": studLocation.result.y }}
                     />
                 }
             </MapView>
