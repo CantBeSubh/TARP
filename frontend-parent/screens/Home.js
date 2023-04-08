@@ -99,7 +99,7 @@ const Home = () => {
         text = `Location: ${location.coords.latitude}, ${location.coords.longitude}`;
     }
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             {attendance && attendance.length > 0 &&
                 <Calendar
                     markedDates={
@@ -120,21 +120,26 @@ const Home = () => {
             <Text>{studData && `Student: ${studData.firstName} ${studData.lastName}`}</Text>
             <Text>{text}</Text>
             <Text>{studLocation && studLocation.result && `Student Location: ${studLocation.result.x},${studLocation.result.y}`}</Text>
-            <View>
-                {/* <MapView style={styles.map} >
-                    {location && <Marker
+            <MapView style={styles.map} >
+                {location &&
+                    <Marker
                         coordinate={location.coords}
                     />
-                    }
-                </MapView> */}
-            </View>
+                }
+                {studLocation && studLocation.result &&
+                    <Marker
+                        pinColor='green'
+                        coordinate={{ latitude: studLocation.result.x, longitude: studLocation.result.y }}
+                    />
+                }
+            </MapView>
             <TouchableOpacity
                 onPress={handleSignOut}
                 style={styles.button}
             >
                 <Text style={styles.buttonText}>Sign out</Text>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -143,8 +148,8 @@ export default Home
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        // justifyContent: 'center',
+        // alignItems: 'center',
     },
     button: {
         backgroundColor: '#0782F9',
@@ -160,7 +165,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     map: {
-        width: '100%',
-        height: '100%',
+        width: '80%',
+        height: '35%',
     }
 })
